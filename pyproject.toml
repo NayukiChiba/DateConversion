@@ -41,19 +41,24 @@ torchaudio = { index = "pytorch-cu128-original" }
 
 # --------------- 项目信息配置 ---------------
 [project]
-name = "templates" # 这里需要设置为你的项目名称，通常与包名相同
+name = "DateConversion" # 这里需要设置为你的项目名称，通常与包名相同
 version = "0.1.0"
-description = "项目模板" # 这里需要设置为你的项目描述，简要说明项目的功能和用途
+description = "使用有注意力的Seq2Seq模型进行日期转换" # 这里需要设置为你的项目描述，简要说明项目的功能和用途
 requires-python = ">=3.11"
 readme = "README.md"
-license = { text = "MIT" }
 authors = [
     { name = "NayukiMeko" },
 ]
 keywords = [] # 这里可以添加一些关键词，帮助用户搜索到你的项目 
 
 # 运行时依赖（留空，按项目需要添加）
-dependencies = []
+dependencies = [
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.6",
+    "torch>=2.11.0",
+    "torchvision>=0.26.0",
+    "tqdm>=4.67.3",
+]
 
 # 可选依赖组（兼容 pip install ".[dev]" 方式安装）
 [project.optional-dependencies]
