@@ -380,11 +380,8 @@ def menu_eval() -> None:
     print("=" * 50)
     print()
 
-    checkpoint_input = input("  checkpoint 文件路径: ").strip()
-    if not checkpoint_input:
-        print("错误: 必须指定 checkpoint 路径")
-        return
-    checkpoint_path = Path(checkpoint_input)
+    checkpoint_input = input(f"  checkpoint 文件路径 [{BEST_MODEL_PATH}]: ").strip()
+    checkpoint_path = Path(checkpoint_input) if checkpoint_input else BEST_MODEL_PATH
 
     batch_size = int(_input_with_default("  批大小", str(DataParams.BATCH_SIZE)))
 
@@ -399,11 +396,8 @@ def menu_predict() -> None:
     print("=" * 50)
     print()
 
-    checkpoint_input = input("  checkpoint 文件路径: ").strip()
-    if not checkpoint_input:
-        print("错误: 必须指定 checkpoint 路径")
-        return
-    checkpoint_path = Path(checkpoint_input)
+    checkpoint_input = input(f"  checkpoint 文件路径 [{BEST_MODEL_PATH}]: ").strip()
+    checkpoint_path = Path(checkpoint_input) if checkpoint_input else BEST_MODEL_PATH
 
     print()
     print("  推理模式:")

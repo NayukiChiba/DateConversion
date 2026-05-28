@@ -8,6 +8,7 @@ CLI 参数解析模块
 import argparse
 
 from config.defaults import DataParams, InferenceParams, ModelParams, TrainingParams
+from config.paths import BEST_MODEL_PATH
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -212,8 +213,8 @@ def build_parser() -> argparse.ArgumentParser:
     eval_parser.add_argument(
         "--checkpoint",
         type=str,
-        required=True,
-        help="模型 checkpoint 文件路径",
+        default=str(BEST_MODEL_PATH),
+        help="模型 checkpoint 文件路径 (默认: %(default)s)",
     )
     eval_parser.add_argument(
         "--batch-size",
@@ -229,8 +230,8 @@ def build_parser() -> argparse.ArgumentParser:
     predict_parser.add_argument(
         "--checkpoint",
         type=str,
-        required=True,
-        help="模型 checkpoint 文件路径",
+        default=str(BEST_MODEL_PATH),
+        help="模型 checkpoint 文件路径 (默认: %(default)s)",
     )
     predict_parser.add_argument(
         "--date",
