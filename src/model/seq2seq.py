@@ -184,17 +184,22 @@ class Seq2Seq(nn.Module):
                 attention_weights_list.append(attn_weights)
 
             predicted_token = step_output.squeeze(1).argmax(dim=1)
-            generated_ids[:, step] = predicted_token
+
+            # 只更新未完成样本的位置,已完成样本保持初始化时的 PAD
+            generated_ids[~is_finished, step] = predicted_token[~is_finished]
 
             # 记录 <EOS> 位置
             just_finished = (predicted_token == self.eos_index) & ~is_finished
             sequence_lengths[just_finished] = step + 1
-            is_finished = is_finished | (predicted_token == self.eos_index)
+            is_finished = is_finished | just_finished
 
             if is_finished.all():
                 break
 
-            current_input = predicted_token.unsqueeze(1)
+            # 已完成样本喂 PAD,避免 EOS 进入 decoder(训练时从未见过)
+            next_token = predicted_token.clone()
+            next_token[is_finished] = self.pad_index
+            current_input = next_token.unsqueeze(1)
 
         sequence_lengths[~is_finished] = max_generation_length
 
