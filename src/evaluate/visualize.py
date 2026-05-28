@@ -8,6 +8,11 @@
 - 注意力热力图
 """
 
+import os
+
+# 修复 Windows 上 PyTorch 与 matplotlib 的 OpenMP 冲突
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+
 from pathlib import Path
 from typing import Dict, List, Optional
 

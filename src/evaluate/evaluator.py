@@ -100,7 +100,7 @@ class Evaluator:
                 max_generation_length=max_gen_len,
             )
 
-            # 将生成序列统一补齐到 max_gen_len
+            # 将生成序列和目标序列统一补齐到 max_gen_len
             if generated_ids.size(1) < max_gen_len:
                 pad_tensor = torch.full(
                     (batch_size, max_gen_len - generated_ids.size(1)),
@@ -109,6 +109,14 @@ class Evaluator:
                     device=self.device,
                 )
                 generated_ids = torch.cat([generated_ids, pad_tensor], dim=1)
+            if target_output.size(1) < max_gen_len:
+                pad_tensor = torch.full(
+                    (batch_size, max_gen_len - target_output.size(1)),
+                    self.vocab.pad_index,
+                    dtype=torch.long,
+                    device=self.device,
+                )
+                target_output = torch.cat([target_output, pad_tensor], dim=1)
 
             for i in range(batch_size):
                 input_ids = encoder_input[i].tolist()
@@ -203,8 +211,13 @@ class Evaluator:
         generated_plots.append(plot_path)
 
         # Step 5: 注意力热力图(选取少量样本)
-        attention_samples = min(5, len(self.test_loader.dataset))
-        self._generate_attention_plots(attention_samples, output_dir, generated_plots)
+        try:
+            attention_samples = min(5, len(self.test_loader.dataset))
+            self._generate_attention_plots(
+                attention_samples, output_dir, generated_plots
+            )
+        except Exception as e:
+            print(f"  注意: 注意力热力图生成失败 ({e})")
 
         # Step 6: 打印报告
         self._print_report(metrics, error_samples, generated_plots)
