@@ -23,7 +23,7 @@ DIGIT_CHARS = [str(i) for i in range(10)]
 LOWERCASE_CHARS = [chr(i) for i in range(97, 123)]  # a-z
 UPPERCASE_CHARS = [chr(i) for i in range(65, 91)]  # A-Z
 CHINESE_CHARS = ["年", "月", "日"]
-SEPARATOR_CHARS = ["-", "/", ",", " "]
+SEPARATOR_CHARS = ["-", "/", ",", " ", ":", "_"]
 
 ALL_CHARS = (
     DIGIT_CHARS + LOWERCASE_CHARS + UPPERCASE_CHARS + CHINESE_CHARS + SEPARATOR_CHARS

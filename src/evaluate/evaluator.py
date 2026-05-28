@@ -15,6 +15,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from config.defaults import InferenceParams
 from config.paths import FIGURES_DIR
 from src.data.mapping import VocabMapping
 from src.evaluate.metrics import compute_metrics
@@ -80,20 +81,34 @@ class Evaluator:
         all_generated_ids: List[torch.Tensor] = []
         all_target_tensors: List[torch.Tensor] = []
 
+        # 使用固定的最大生成长度,避免不同 batch 间序列长度不一致
+        max_gen_len = InferenceParams.MAX_GEN_LENGTH
+
         desc = "[Evaluate] Testing"
         for encoder_input, decoder_input, target_output, encoder_mask in tqdm(
             self.test_loader, desc=desc, unit="batch"
         ):
             encoder_input = encoder_input.to(self.device)
             encoder_mask = encoder_mask.to(self.device)
+            target_output = target_output.to(self.device)
 
             batch_size = encoder_input.size(0)
 
             generated_ids, _ = self.model.generate(
                 encoder_input,
                 encoder_mask,
-                max_generation_length=target_output.size(1),
+                max_generation_length=max_gen_len,
             )
+
+            # 将生成序列统一补齐到 max_gen_len
+            if generated_ids.size(1) < max_gen_len:
+                pad_tensor = torch.full(
+                    (batch_size, max_gen_len - generated_ids.size(1)),
+                    self.vocab.pad_index,
+                    dtype=torch.long,
+                    device=self.device,
+                )
+                generated_ids = torch.cat([generated_ids, pad_tensor], dim=1)
 
             for i in range(batch_size):
                 input_ids = encoder_input[i].tolist()
@@ -118,12 +133,13 @@ class Evaluator:
         generated_concatenated = torch.cat(all_generated_ids, dim=0)
         target_concatenated = torch.cat(all_target_tensors, dim=0)
 
-        # 如果生成序列比目标序列短,补 PAD
-        max_gen_len = generated_concatenated.size(1)
-        max_target_len = target_concatenated.size(1)
-        if max_gen_len < max_target_len:
+        # 如果生成序列比目标序列短,补 PAD 使维度一致
+        if generated_concatenated.size(1) < target_concatenated.size(1):
             padding = torch.full(
-                (generated_concatenated.size(0), max_target_len - max_gen_len),
+                (
+                    generated_concatenated.size(0),
+                    target_concatenated.size(1) - generated_concatenated.size(1),
+                ),
                 self.vocab.pad_index,
                 dtype=torch.long,
             )

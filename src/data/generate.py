@@ -132,9 +132,10 @@ def generate_one_sample(
     生成一个日期格式转换对
 
     随机选取不同的源格式和目标格式。
+    输入前缀目标格式标记,消除歧义(同一源日期可能对应多种目标格式)。
 
     Returns:
-        (input_seq, output_seq): 输入日期字符串,输出日期字符串
+        (input_seq, output_seq): 如 ("ENGLISH_FULL:2024-01-15", "January 15, 2024")
     """
     if formats is None:
         formats = DataParams.DATE_FORMATS
@@ -144,7 +145,7 @@ def generate_one_sample(
     # 随机选取两个不同的格式
     source_fmt, target_fmt = random.sample(formats, 2)
 
-    input_seq = format_date(year, month, day, source_fmt)
+    input_seq = f"{target_fmt}:{format_date(year, month, day, source_fmt)}"
     output_seq = format_date(year, month, day, target_fmt)
     return input_seq, output_seq
 
